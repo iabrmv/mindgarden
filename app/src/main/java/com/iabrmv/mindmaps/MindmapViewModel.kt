@@ -2,7 +2,6 @@ package com.iabrmv.mindmaps
 
 import androidx.compose.runtime.*
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.lifecycle.ViewModel
 
 class MindMapViewModel: ViewModel() {
