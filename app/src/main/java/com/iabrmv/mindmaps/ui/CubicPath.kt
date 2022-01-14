@@ -3,15 +3,21 @@ package com.iabrmv.mindmaps.ui
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.keyframes
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.round
 import kotlin.math.abs
 
 fun cubicPath(start: Offset, end: Offset) = Path().apply {
@@ -62,13 +68,31 @@ fun Edge(modifier: Modifier = Modifier, start: Offset, end: Offset, color: Color
     }
 }
 
+
+@Composable
+fun EdgeConic(modifier: Modifier = Modifier, start: Offset, end: Offset, color: Color) {
+
+    val size = with(end - start) {
+        with(LocalDensity.current) {
+            DpSize(x.toDp(),  y.toDp())
+        }
+    }
+
+    Box(modifier = modifier
+        .offset{ start.round() }
+        .size(size)
+        .background(
+            color = color,
+            shape = ArrowShape(100f, 25f)
+    ))
+}
 @Preview
 @Composable
 fun CubicPathPreview() {
-//    Box(
-//        Modifier
-//            .fillMaxSize()
-//            .background(Color.White)) {
-//        Edge(Modifier.offset(100.dp, 100.dp).size(100.dp, 50.dp), color = Color.Magenta)
-//    }
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(Color.White)) {
+        EdgeConic(Modifier, color = Color.Magenta, start = Offset(100f,100f), end = Offset(800f, 600f))
+    }
 }

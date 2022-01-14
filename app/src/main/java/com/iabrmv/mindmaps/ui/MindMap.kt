@@ -36,7 +36,7 @@ fun MindMap(
         for(i in 0 until nodesCount - 1) {
             for(j in i + 1 until nodesCount) {
                 if(incidenceMatrix[i][j]) {
-                    Edge(
+                    EdgeConic(
                         color = arrowColor,
                         modifier = Modifier,
                         start = offsets[i],
