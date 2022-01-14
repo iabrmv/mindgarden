@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.consumeAllChanges
 import androidx.compose.ui.input.pointer.pointerInput
@@ -30,14 +31,15 @@ fun MindMap(
     incidenceMatrix: List<List<Boolean>>
 ) {
     val nodesCount = nodes.size
-    val arrowColor = MaterialTheme.colors.primary
+    val arrowBrush = Brush.verticalGradient(
+        listOf(MaterialTheme.colors.primary, Color.Magenta))
 
     Box(Modifier.fillMaxSize()) {
         for(i in 0 until nodesCount - 1) {
             for(j in i + 1 until nodesCount) {
                 if(incidenceMatrix[i][j]) {
                     EdgeConic(
-                        color = arrowColor,
+                        brush = arrowBrush,
                         modifier = Modifier,
                         start = offsets[i],
                         end = offsets[j]

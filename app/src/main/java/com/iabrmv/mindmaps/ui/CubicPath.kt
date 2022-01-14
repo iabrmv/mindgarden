@@ -2,14 +2,18 @@ package com.iabrmv.mindmaps.ui
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -70,7 +74,7 @@ fun Edge(modifier: Modifier = Modifier, start: Offset, end: Offset, color: Color
 
 
 @Composable
-fun EdgeConic(modifier: Modifier = Modifier, start: Offset, end: Offset, color: Color) {
+fun EdgeConic(modifier: Modifier = Modifier, start: Offset, end: Offset, brush: Brush) {
 
     val size = with(end - start) {
         with(LocalDensity.current) {
@@ -78,13 +82,19 @@ fun EdgeConic(modifier: Modifier = Modifier, start: Offset, end: Offset, color: 
         }
     }
 
+    val convexFactor by animateFloatAsState(
+        targetValue = if(size.height > size.width) 1f else 0f,
+        animationSpec = tween(500)
+    )
+
+
     Box(modifier = modifier
-        .offset{ start.round() }
+        .offset { start.round() }
         .size(size)
         .background(
-            color = color,
-            shape = ArrowShape(100f, 25f)
-    ))
+            brush = brush,
+            shape = ArrowShape(100f, 10f, convexFactor = convexFactor)
+        ))
 }
 @Preview
 @Composable
@@ -93,6 +103,11 @@ fun CubicPathPreview() {
         Modifier
             .fillMaxSize()
             .background(Color.White)) {
-        EdgeConic(Modifier, color = Color.Magenta, start = Offset(100f,100f), end = Offset(800f, 600f))
+        EdgeConic(
+            modifier = Modifier,
+            brush = Brush.verticalGradient(listOf(Color.Magenta, Color.Black)),
+            start = Offset(100f,100f),
+            end = Offset(800f, 600f)
+        )
     }
 }
