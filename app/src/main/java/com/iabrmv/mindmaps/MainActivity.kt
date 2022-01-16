@@ -23,7 +23,7 @@ class MainActivity : ComponentActivity() {
                         onAdd = ::onAdd,
                         onDelete = ::onDelete,
                         onTextChange = ::onTextChange,
-                        incidenceMatrix = incidenceMatrix
+                        incidenceMatrix = adjacencyMatrix
                     )
                 }
             }

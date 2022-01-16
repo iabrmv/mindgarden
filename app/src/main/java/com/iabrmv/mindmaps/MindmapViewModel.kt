@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 class MindMapViewModel: ViewModel() {
     var nodes = mutableStateListOf("My goal")
     var offsets = mutableStateListOf(Offset(700f, 800f))
-    var incidenceMatrix by mutableStateOf(listOf(listOf(false)))
+    var adjacencyMatrix by mutableStateOf(listOf(listOf(false)))
 
     fun onDrag(index: Int, dragAmount: Offset) {
         offsets[index] = Offset(
@@ -17,9 +17,9 @@ class MindMapViewModel: ViewModel() {
     }
 
     fun onAdd(index: Int) {
-        incidenceMatrix = List(nodes.size + 1) { i ->
+        adjacencyMatrix = List(nodes.size + 1) { i ->
             if (i< nodes.size) {
-                (incidenceMatrix[i] + (index == i))
+                (adjacencyMatrix[i] + (index == i))
             } else {
                 List(nodes.size + 1) { j ->
                     index == j
@@ -36,7 +36,7 @@ class MindMapViewModel: ViewModel() {
 
     fun onDelete(index: Int) {
         if(index != 0) {
-            incidenceMatrix = incidenceMatrix.removeAt(index).map {
+            adjacencyMatrix = adjacencyMatrix.removeAt(index).map {
                 it.removeAt(index)
             }
 

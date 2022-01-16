@@ -1,7 +1,14 @@
 package com.iabrmv.mindmaps.ui
 
+import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -44,6 +51,15 @@ fun NodeAlternative(
     val focusManager = LocalFocusManager.current
     val textFieldValue = TextFieldValue(text, TextRange(text.length))
     val scope = rememberCoroutineScope()
+    val infiniteTransition = rememberInfiniteTransition()
+    val color by infiniteTransition.animateColor(
+        initialValue = MaterialTheme.colors.primaryVariant,
+        targetValue = MaterialTheme.colors.primary,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2500),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
 
     DisposableEffect(enabled, showMenu) {
         onDispose {
@@ -55,6 +71,7 @@ fun NodeAlternative(
             }
         }
     }
+
     Box(modifier = modifier) {
         BasicTextField(
             value = textFieldValue,
@@ -78,8 +95,8 @@ fun NodeAlternative(
                 }
                 .background(Color.White, shape = CircleShape)
                 .border(
-                    width = 1.dp,
-                    color = MaterialTheme.colors.primary,
+                    width = 3.dp,
+                    color = if(text == "My goal") color else Color.Transparent,
                     shape = CircleShape
                 )
                 .padding(16.dp),
@@ -105,17 +122,5 @@ fun NodeAlternative(
                 }
             }
         }
-    }
-}
-
-@ExperimentalComposeUiApi
-@Preview
-@Composable
-fun NodeAlternativePreview() {
-    Box(
-        Modifier
-            .fillMaxSize()
-            .background(Color.White)) {
-        NodeAlternative("My goal")
     }
 }
