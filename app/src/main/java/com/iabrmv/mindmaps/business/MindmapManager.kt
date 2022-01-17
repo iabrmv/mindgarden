@@ -13,6 +13,7 @@ class MindmapManager(val realm: Realm) {
     var currentMindmap: Mindmap? = null
 
     fun selectMindmap(id: Int) {
+        val list =  realm.where<Mindmap>().findAll()
         currentMindmap = realm.where<Mindmap>().equalTo("id", id).findFirst()
     }
 
@@ -20,8 +21,10 @@ class MindmapManager(val realm: Realm) {
     fun loadMindmaps(): List<Mindmap> = realm.where<Mindmap>().findAll()
 
     fun addMindmap(name: String) {
+        val mindmap = Mindmap(name = name)
         realm.executeTransaction {
-            currentMindmap = Mindmap(name = name)
+            it.copyToRealmOrUpdate(mindmap)
+            currentMindmap = mindmap
         }
     }
 

@@ -20,7 +20,7 @@ class MindGardenViewModel: ViewModel() {
     fun addMindmap(name: String) {
         manager.addMindmap(name)
         mindmaps.add(name)
-        onSelectMindmap(0)
+        onSelectMindmap(mindmaps.lastIndex)
     }
 
     var selectedMindmapIndex: Int? by mutableStateOf(null)
@@ -28,7 +28,7 @@ class MindGardenViewModel: ViewModel() {
     fun onSelectMindmap(index: Int) {
         selectedMindmapIndex = index
         manager.selectMindmap(index)
-        updateMindmapFromDb()
+        updateFromDb()
         currentDestination = Destination.Mindmap
     }
 
@@ -42,7 +42,7 @@ class MindGardenViewModel: ViewModel() {
     var offsets = mutableStateListOf<Offset>()
     var edges = mutableStateListOf<Edge>()
 
-    fun updateMindmapFromDb() {
+    fun updateFromDb() {
         texts = (mindmap?.nodes?.map{ it.text} ?: listOf()).toMutableStateList()
         offsets = (mindmap?.nodes?.map{ it.offset} ?: listOf()).toMutableStateList()
         edges = (mindmap?.edges ?: listOf()).toMutableStateList()
