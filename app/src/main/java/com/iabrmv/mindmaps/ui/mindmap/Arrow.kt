@@ -1,4 +1,4 @@
-package com.iabrmv.mindmaps.ui
+package com.iabrmv.mindmaps.ui.mindmap
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size

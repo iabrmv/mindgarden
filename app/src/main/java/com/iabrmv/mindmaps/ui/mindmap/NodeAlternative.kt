@@ -22,8 +22,10 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.*
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextRange
@@ -39,6 +41,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun NodeAlternative(
     text: String,
+    isFocused: Boolean,
+    onReceiveFocus: () -> Unit,
+    onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
     onAdd: () -> Unit = { },
     onTextChange: (String) -> Unit = { },
@@ -46,12 +51,12 @@ fun NodeAlternative(
     onStyleChangeIntent: () -> Unit = { }
 ) {
     var showMenu by remember { mutableStateOf(false) }
-    var enabled by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
     val textFieldValue = TextFieldValue(text, TextRange(text.length))
     val scope = rememberCoroutineScope()
     val infiniteTransition = rememberInfiniteTransition()
+
     val color by infiniteTransition.animateColor(
         initialValue = MaterialTheme.colors.primaryVariant,
         targetValue = MaterialTheme.colors.primary,
@@ -61,9 +66,9 @@ fun NodeAlternative(
         )
     )
 
-    DisposableEffect(enabled, showMenu) {
+    DisposableEffect(isFocused, showMenu) {
         onDispose {
-            if(enabled && !showMenu) {
+            if(isFocused && !showMenu) {
                 scope.launch {
                     delay(100)
                     focusRequester.requestFocus()
@@ -76,11 +81,11 @@ fun NodeAlternative(
         BasicTextField(
             value = textFieldValue,
             onValueChange = { onTextChange(it.text) },
-            enabled = enabled,
+            enabled = isFocused,
             keyboardActions = KeyboardActions(
                 onDone = {
                     focusManager.clearFocus()
-                    enabled = false
+                    onDismiss()
                 }
             ),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
@@ -93,7 +98,7 @@ fun NodeAlternative(
                         showMenu = true
                     })
                 }
-                .background(Color.White, shape = CircleShape)
+                .background(color = color, shape = CircleShape)
                 .border(
                     width = 3.dp,
                     color = if(text == "My goal") color else Color.Transparent,
@@ -107,7 +112,7 @@ fun NodeAlternative(
             onDismissRequest = { showMenu = false }
         ) {
             val buttons = mapOf(
-                "Rename" to { enabled = true },
+                "Rename" to { onReceiveFocus() },
                 "Delete" to { onDelete() },
                 "New node" to { onAdd() },
                 "Style" to { onStyleChangeIntent() }
