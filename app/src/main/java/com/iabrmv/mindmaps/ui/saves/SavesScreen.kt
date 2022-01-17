@@ -8,6 +8,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
@@ -18,31 +19,34 @@ fun SavesScreen(
     onAddMindmap: (String) -> Unit,
 ) {
     var showDialog by remember { mutableStateOf(false) }
-    LazyColumn(Modifier.fillMaxSize()) {
-        itemsIndexed(names) { index, name ->
-            SaveItem(
-                text = name,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .padding(horizontal = 24.dp, vertical = 8.dp)
-                    .clickable {
-                        onMindmapClick(index)
-                    }
-            )
-            Divider()
+    Box {
+        LazyColumn(Modifier.fillMaxSize()) {
+            itemsIndexed(names) { index, name ->
+                SaveItem(
+                    text = name,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .padding(horizontal = 24.dp, vertical = 8.dp)
+                        .clickable {
+                            onMindmapClick(index)
+                        }
+                )
+                Divider()
+            }
+        }
+        FloatingActionButton(
+            onClick = {
+                showDialog = true
+            },
+            modifier = Modifier.align(Alignment.BottomEnd).padding(32.dp)
+        ) {
+            Icon(imageVector = Icons.Filled.Add, contentDescription = null)
         }
     }
 
-    FloatingActionButton(onClick = {
-
-        showDialog = true
-    }) {
-        Icon(imageVector = Icons.Filled.Add, contentDescription = null)
-    }
-
-    if(showDialog) {
-        var name by remember { mutableStateOf("" ) }
+    if (showDialog) {
+        var name by remember { mutableStateOf("") }
         AlertDialog(
             onDismissRequest = { showDialog = false },
             title = {
@@ -57,15 +61,20 @@ fun SavesScreen(
                 )
             },
             buttons = {
-                TextButton(onClick = {
-                    onAddMindmap(name)
-                }) {
-                    Text("OK")
-                }
-                TextButton(onClick = {
-                    showDialog = false
-                }) {
-                    Text("CANCEL")
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = {
+                        onAddMindmap(name)
+                    }) {
+                        Text("OK")
+                    }
+                    TextButton(onClick = {
+                        showDialog = false
+                    }) {
+                        Text("CANCEL")
+                    }
                 }
             }
         )
