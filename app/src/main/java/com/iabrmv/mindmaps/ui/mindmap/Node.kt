@@ -1,4 +1,4 @@
-package com.iabrmv.mindmaps.ui
+package com.iabrmv.mindmaps.ui.mindmap
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

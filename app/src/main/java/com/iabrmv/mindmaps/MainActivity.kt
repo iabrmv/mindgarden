@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.ui.ExperimentalComposeUiApi
-import com.iabrmv.mindmaps.ui.MindMap
+import com.iabrmv.mindmaps.ui.mindmap.Mindmap
 import com.iabrmv.mindmaps.ui.routing.Destination
 import com.iabrmv.mindmaps.ui.saves.SavesScreen
 import com.iabrmv.mindmaps.ui.theme.MindMapsTheme
@@ -20,18 +20,22 @@ class MainActivity : ComponentActivity() {
             MindMapsTheme {
                 with(viewModel) {
                     when(currentDestination) {
-                        Destination.Mindmap -> MindMap(
-                            nodes = texts,
-                            offsets = offsets,
+                        Destination.Mindmap -> Mindmap(
+                            nodes = nodes,
                             edges = edges,
-                            focusedIndex = focusedIndex,
-                            onFocusChange = ::setFocus,
-                            clearFocus = ::clearFocus,
-                            onDrag = ::onDrag,
-                            onAdd = ::onAdd,
-                            onDelete = ::onRemoveNode,
-                            onTextChange = ::onTextChange,
-                            onExit = ::onExit
+                            lastTouchedNodeIndex = lastTouchedNodeIndex,
+                            hasFocus = isNodeTextFocused,
+                            onSetFocus = ::setFocus,
+                            onClearFocus = ::clearFocus,
+                            onTouchNode = ::selectNode,
+                            onDrag = ::move,
+                            onReleaseDrag = ::confirmMove,
+                            onAddNode = ::addNode,
+                            onRemoveNode = ::removeNode,
+                            onRemoveEdge = ::removeEdge,
+                            onTextChange = ::updateText,
+                            onDoneEdit = ::stopEditingText,
+                            onExit = ::exitMindmapScreen
                         )
                         Destination.Saves -> SavesScreen(
                             names = mindmaps,

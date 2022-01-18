@@ -1,87 +1,111 @@
 package com.iabrmv.mindmaps.business
 
-import androidx.compose.ui.geometry.Offset
-import com.iabrmv.mindmaps.model.Edge
-import com.iabrmv.mindmaps.model.EdgeStyle
-import com.iabrmv.mindmaps.model.Mindmap
-import com.iabrmv.mindmaps.model.Node
+import com.iabrmv.mindmaps.business.model.Mindmap
+import com.iabrmv.mindmaps.database.*
 import io.realm.Realm
 import io.realm.kotlin.where
 
-// TODO realm
 class MindmapManager(val realm: Realm) {
     var currentMindmap: Mindmap? = null
 
-    fun selectMindmap(id: Int) {
-        val list =  realm.where<Mindmap>().findAll()
-        currentMindmap = realm.where<Mindmap>().equalTo("id", id).findFirst()
-    }
+    fun loadMindmap(id: Int) = realm
+        .where<MindmapEntity>()
+        .equalTo("id", id)
+        .findFirst()?.toBusinessModel()
 
+    fun loadMindmaps(): List<MindmapEntity> = realm.where<MindmapEntity>().findAll()
 
-    fun loadMindmaps(): List<Mindmap> = realm.where<Mindmap>().findAll()
-
-    fun addMindmap(name: String) {
-        val mindmap = Mindmap(name = name)
-        realm.executeTransaction {
-            it.copyToRealmOrUpdate(mindmap)
+    fun addMindmap(mindmap: Mindmap) {
+        realm.executeTransaction { realm ->
+            val maxId = realm.where<MindmapEntity>().max("id")?.toLong() ?: -1
+            val mindmapEntity = mindmap.toEntity().also { it.id = maxId + 1 }
+            realm.copyToRealm(mindmapEntity)
             currentMindmap = mindmap
         }
     }
 
-    private fun addEdge(
-        startIndex: Int,
-        endIndex: Int,
-        style: EdgeStyle? = null
-    ) {
-        currentMindmap?.run {
-            edges.add(Edge(startIndex, endIndex, style))
-        }
-    }
-
-    fun saveMindmap(mindmap: Mindmap) {
-
-    }
-
-    fun moveNode(nodeIndex: Int, delta: Offset) {
-        realm.executeTransaction {
-            currentMindmap?.run {
-                nodes[nodeIndex]?.let {
-                    it.xOffset += delta.x
-                    it.yOffset += delta.y
-                }
+    fun saveMindmap(index: Int, mindmap: Mindmap) {
+        realm.executeTransaction { realm ->
+            var storedEntity = realm
+                .where<MindmapEntity>()
+                .equalTo("id", index)
+                .findFirst()
+            if(storedEntity != null) {
+                storedEntity = mindmap.toEntity()
+                realm.copyToRealmOrUpdate(storedEntity)
             }
+            else realm.cancelTransaction()
         }
     }
 
-    fun addNode(parentIndex: Int, node: Node) {
-        realm.executeTransaction {
-            currentMindmap?.run {
-                nodes.add(node)
-                addEdge(parentIndex, nodes.lastIndex)
-            }
-        }
-    }
+//
+//    private fun addEdge(
+//        startIndex: Int,
+//        endIndex: Int,
+//        style: EdgeStyle? = null
+//    ) {
+//        currentMindmap?.run {
+//            edges.add(Edge(startIndex = startIndex, endIndex = endIndex, style = style))
+//        }
+//    }
+//
+//    private fun Realm.save() {
+//        currentMindmap?.let {
+//            copyToRealmOrUpdate(it)
+//        }
+//    }
+//
+//    fun moveNodeTo(nodeIndex: Int, newPoint: Offset) {
+//        realm.executeTransaction { realm ->
+//            currentMindmap?.run {
+//                nodes[nodeIndex]?.let {
+//                    it.xOffset = newPoint.x
+//                    it.yOffset = newPoint.y
+//                    realm.save()
+//                }
+//            }
+//        }
+//    }
+//
+//    fun addNode(parentIndex: Int, node: Node) {
+//        realm.executeTransaction { realm ->
+//            currentMindmap?.run {
+//                realm.copyToRealmOrUpdate(node)
+//                nodes.add(node)
+//                addEdge(parentIndex, nodes.lastIndex)
+//            }
+//        }
+//    }
+//
+//    fun removeNode(index: Int) {
+//        realm.executeTransaction {
+//            currentMindmap?.run {
+//                edges.removeAll { index == it.startIndex || index == it.endIndex }
+//                nodes.removeAt(index)
+//            }
+//        }
+//    }
+//
+//    fun removeEdge(index: Int) {
+//        realm.executeTransaction {
+//            currentMindmap?.edges?.removeAt(index)
+//        }
+//    }
+//
+//    fun updateNodeText(index: Int, text: String) {
+//        realm.executeTransaction {
+//            currentMindmap?.run {
+//                nodes[index]?.text = text
+//            }
+//        }
+//    }
 
-    fun removeNode(index: Int) {
-        realm.executeTransaction {
-            currentMindmap?.run {
-                edges.removeAll { index == it.startIndex || index == it.endIndex }
-                nodes.removeAt(index)
-            }
-        }
-    }
-
-    fun removeEdge(index: Int) {
-        realm.executeTransaction {
-            currentMindmap?.edges?.removeAt(index)
-        }
-    }
-
-    fun updateNodeText(index: Int, text: String) {
-        realm.executeTransaction {
-            currentMindmap?.run {
-                nodes[index]?.text = text
-            }
+    fun clear() {
+        // Delete all persons
+        // Using executeTransaction with a lambda reduces code size and makes it impossible
+        // to forget to commit the transaction.
+        realm.executeTransaction { realm ->
+            realm.deleteAll()
         }
     }
 }

@@ -1,14 +1,12 @@
-package com.iabrmv.mindmaps.ui
+package com.iabrmv.mindmaps.ui.mindmap
 
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -20,19 +18,15 @@ import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.*
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
@@ -43,12 +37,13 @@ fun NodeAlternative(
     text: String,
     isFocused: Boolean,
     onReceiveFocus: () -> Unit,
-    onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
+    onTouch: () -> Unit,
     onAdd: () -> Unit = { },
     onTextChange: (String) -> Unit = { },
     onDelete: () -> Unit = { },
-    onStyleChangeIntent: () -> Unit = { }
+    onStyleChangeIntent: () -> Unit = { },
+    onDoneEdit: () -> Unit
 ) {
     var showMenu by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
@@ -84,8 +79,8 @@ fun NodeAlternative(
             enabled = isFocused,
             keyboardActions = KeyboardActions(
                 onDone = {
+                    onDoneEdit()
                     focusManager.clearFocus()
-                    onDismiss()
                 }
             ),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
@@ -95,6 +90,7 @@ fun NodeAlternative(
                 .focusRequester(focusRequester)
                 .pointerInput(Unit) {
                     detectTapGestures(onLongPress = {
+                        onTouch()
                         showMenu = true
                     })
                 }

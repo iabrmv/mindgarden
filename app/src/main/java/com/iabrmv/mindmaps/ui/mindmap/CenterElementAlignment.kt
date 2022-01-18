@@ -1,4 +1,4 @@
-package com.iabrmv.mindmaps.ui
+package com.iabrmv.mindmaps.ui.mindmap
 
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier

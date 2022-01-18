@@ -4,9 +4,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
 import com.iabrmv.mindmaps.business.MindmapManager
-import com.iabrmv.mindmaps.model.Edge
-import com.iabrmv.mindmaps.model.Mindmap
-import com.iabrmv.mindmaps.model.Node
+import com.iabrmv.mindmaps.business.model.Edge
+import com.iabrmv.mindmaps.business.model.Mindmap
+import com.iabrmv.mindmaps.business.model.Node
 import com.iabrmv.mindmaps.ui.routing.Destination
 import io.realm.Realm
 
@@ -14,84 +14,102 @@ class MindGardenViewModel: ViewModel() {
     private val manager = MindmapManager(Realm.getDefaultInstance())
     var currentDestination by mutableStateOf(Destination.Saves)
 
+    init {
+        manager.clear()
+    }
     // Saves Screen
     var mindmaps = manager.loadMindmaps().map { it.name }.toMutableStateList()
 
     fun addMindmap(name: String) {
-        manager.addMindmap(name)
-        mindmaps.add(name)
-        onSelectMindmap(mindmaps.lastIndex)
+        mindmap = Mindmap(name = name, nodes = mutableListOf(Node("My Goal")))
+        manager.addMindmap(mindmap)
+        mindmaps.add(mindmap.name)
+        selectedMindmapIndex = mindmaps.lastIndex
+        currentDestination = Destination.Mindmap
     }
 
     var selectedMindmapIndex: Int? by mutableStateOf(null)
 
     fun onSelectMindmap(index: Int) {
         selectedMindmapIndex = index
-        manager.selectMindmap(index)
-        updateFromDb()
+        mindmap = manager.loadMindmap(index) ?: Mindmap()
         currentDestination = Destination.Mindmap
     }
 
     // Mindmap Screen
+    private lateinit var mindmap: Mindmap
 
-    private val mindmap get() = manager.currentMindmap
+    var lastTouchedNodeIndex: Int? by mutableStateOf(null)
+    var isNodeTextFocused: Boolean by mutableStateOf(false)
 
-    var focusedIndex: Int? by mutableStateOf(null)
-
-    var texts = mutableStateListOf<String>()
-    var offsets = mutableStateListOf<Offset>()
-    var edges = mutableStateListOf<Edge>()
-
-    fun updateFromDb() {
-        texts = (mindmap?.nodes?.map{ it.text} ?: listOf()).toMutableStateList()
-        offsets = (mindmap?.nodes?.map{ it.offset} ?: listOf()).toMutableStateList()
-        edges = (mindmap?.edges ?: listOf()).toMutableStateList()
-    }
+    var texts = mindmap.nodes.map { node -> node.text }.toMutableStateList()
+    var offsets = mindmap.nodes.map { node -> node.offset }.toMutableStateList()
+    var edges = mindmap.edges.toMutableStateList()
+    var nodes = mindmap.nodes.map { Pair(it.text, it.offset)}.toMutableStateList()
 
 
     fun clearFocus() {
-        focusedIndex = null
+        isNodeTextFocused = false
     }
 
-    fun setFocus(index: Int) {
-        focusedIndex = index
+    fun setFocus() {
+        isNodeTextFocused = true
     }
 
-    fun onDrag(index: Int, dragAmount: Offset) {
-        offsets[index] += dragAmount
-        manager.moveNode(index, dragAmount)
+    fun move(index: Int, delta: Offset) {
+        offsets[index] += delta
     }
 
-    fun onAdd(index: Int) {
-        val node = Node()
+    fun confirmMove(index: Int) {
+        save()
+    }
 
+    fun selectNode(index: Int) {
+        lastTouchedNodeIndex = index
+    }
+
+    private fun clearLastTouchedIndex() {
+        lastTouchedNodeIndex = null
+    }
+
+    fun addNode(index: Int) {
+        val node = Node(offset = offsets[index] + Offset(0f, 100f))
         texts.add(node.text)
         offsets.add(node.offset)
-        edges.add(Edge(index, texts.lastIndex))
-
-        manager.addNode(index, node)
+        edges.add(Edge(startIndex = index, endIndex = texts.lastIndex))
     }
 
-    fun onTextChange(newText: String) = focusedIndex?.let {
-        texts[it] = newText
-        manager.updateNodeText(it, newText)
-    }
-
-    fun onRemoveNode(index: Int) {
-        texts.removeAt(index)
-        offsets.removeAt(index)
-        edges.removeAll {
-            it.startIndex == index || it.endIndex == index
+    fun updateText(newText: String) = lastTouchedNodeIndex?.let {
+        if(isNodeTextFocused) {
+            texts[it] = newText
         }
-        manager.removeNode(index)
     }
 
-    fun onRemoveEdge(index: Int) {
+    fun stopEditingText() =  lastTouchedNodeIndex?.let {
+        save()
+        clearFocus()
+    }
+
+    private fun save() = selectedMindmapIndex?.let { manager.saveMindmap(it, mindmap) }
+
+    fun removeNode() {
+        lastTouchedNodeIndex?.let { index ->
+            texts.removeAt(index)
+            offsets.removeAt(index)
+            edges.removeAll {
+                it.startIndex == index || it.endIndex == index
+            }
+            save()
+        }
+        clearLastTouchedIndex()
+    }
+
+    fun removeEdge(index: Int) {
         edges.removeAt(index)
-        manager.removeEdge(index)
+        save()
     }
 
-    fun onExit() {
+    fun exitMindmapScreen() {
         currentDestination = Destination.Saves
     }
 }
