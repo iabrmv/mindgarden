@@ -13,9 +13,9 @@ open class EdgeEntity(
     var style: EdgeStyleEntity? = null
 ): RealmObject(), Entity<Edge> {
     override fun toBusinessModel(): Edge = Edge(
+        id = id,
         startIndex = startIndex,
         endIndex = endIndex,
         style = style?.toBusinessModel()
     )
-
 }

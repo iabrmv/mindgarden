@@ -9,19 +9,20 @@ import com.iabrmv.mindmaps.ui.mindmap.Mindmap
 import com.iabrmv.mindmaps.ui.routing.Destination
 import com.iabrmv.mindmaps.ui.saves.SavesScreen
 import com.iabrmv.mindmaps.ui.theme.MindMapsTheme
-import com.iabrmv.mindmaps.viewModel.MindGardenViewModel
+import com.iabrmv.mindmaps.viewModel.MindmapsViewModel
 
 @ExperimentalComposeUiApi
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val viewModel: MindGardenViewModel by viewModels()
+        val viewModel: MindmapsViewModel by viewModels()
         setContent {
             MindMapsTheme {
                 with(viewModel) {
                     when(currentDestination) {
                         Destination.Mindmap -> Mindmap(
-                            nodes = nodes,
+                            texts = texts,
+                            offsets = offsets,
                             edges = edges,
                             lastTouchedNodeIndex = lastTouchedNodeIndex,
                             hasFocus = isNodeTextFocused,

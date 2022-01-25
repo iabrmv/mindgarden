@@ -17,7 +17,8 @@ import com.iabrmv.mindmaps.business.model.Edge
 
 @Composable
 fun Mindmap(
-    nodes: List<Pair<String, Offset>>,
+    texts: List<String>,
+    offsets: List<Offset>,
     edges: List<Edge>,
     lastTouchedNodeIndex: Int?,
     hasFocus: Boolean,
@@ -49,17 +50,17 @@ fun Mindmap(
             Edge(
                 color = arrowColor,
                 modifier = Modifier,
-                start = nodes[it.startIndex].second,
-                end = nodes[it.endIndex].second
+                start = offsets[it.startIndex],
+                end = offsets[it.endIndex]
             )
         }
-        nodes.forEachIndexed { i, node ->
+        texts.forEachIndexed { i, node ->
             NodeAlternative(
-                text = node.first,
+                text = texts[i],
                 isFocused = lastTouchedNodeIndex == i && hasFocus,
                 onReceiveFocus = { onSetFocus() },
                 modifier = Modifier
-                    .offset { nodes[i].second.round() }
+                    .offset { offsets[i].round() }
                     .align(CenterElementAlignment)
                     .pointerInput(Unit) {
                         detectDragGestures(

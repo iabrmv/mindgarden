@@ -17,10 +17,11 @@ open class NodeEntity(
 ): RealmObject(), Entity<Node> {
 
     constructor(
+        id: String,
         text: String,
         offset: Offset,
         style: NodeStyleEntity?
-    ) : this(text = text, xOffset = offset.x, yOffset = offset.y, style = style)
+    ) : this(id = id, text = text, xOffset = offset.x, yOffset = offset.y, style = style)
 
     var offset
         get() = Offset(xOffset, yOffset)
@@ -30,10 +31,9 @@ open class NodeEntity(
         }
 
     override fun toBusinessModel(): Node = Node(
+        id = id,
         text = text,
         offset = offset,
         style = style?.toBusinessModel()
     )
-
-
 }

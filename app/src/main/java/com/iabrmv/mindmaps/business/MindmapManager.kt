@@ -13,22 +13,26 @@ class MindmapManager(val realm: Realm) {
         .equalTo("id", id)
         .findFirst()?.toBusinessModel()
 
-    fun loadMindmaps(): List<MindmapEntity> = realm.where<MindmapEntity>().findAll()
+    fun loadMindmaps(): List<Mindmap> = realm
+        .where<MindmapEntity>()
+        .findAll()
+        .map {
+            it.toBusinessModel()
+        }
 
     fun addMindmap(mindmap: Mindmap) {
         realm.executeTransaction { realm ->
-            val maxId = realm.where<MindmapEntity>().max("id")?.toLong() ?: -1
-            val mindmapEntity = mindmap.toEntity().also { it.id = maxId + 1 }
+            val mindmapEntity = mindmap.toEntity()
             realm.copyToRealm(mindmapEntity)
             currentMindmap = mindmap
         }
     }
 
-    fun saveMindmap(index: Int, mindmap: Mindmap) {
+    fun saveMindmap(mindmap: Mindmap) {
         realm.executeTransaction { realm ->
             var storedEntity = realm
                 .where<MindmapEntity>()
-                .equalTo("id", index)
+                .equalTo("id", mindmap.id)
                 .findFirst()
             if(storedEntity != null) {
                 storedEntity = mindmap.toEntity()
