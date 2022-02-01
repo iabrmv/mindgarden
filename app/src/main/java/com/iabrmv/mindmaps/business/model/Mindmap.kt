@@ -24,8 +24,10 @@ data class Mindmap(
         }
     )
 
+    constructor(name: String) : this(name = name, nodes = mutableListOf(Node(text = "My Goal")))
+
     fun addNode(parentIndex: Int) {
-        val node = Node(offset = nodes[parentIndex].offset)
+        val node = Node(offset = nodes[parentIndex].offset + Offset(100f, 100f))
         nodes.add(node)
         edges.add(Edge(startIndex = parentIndex, endIndex = nodes.lastIndex))
     }

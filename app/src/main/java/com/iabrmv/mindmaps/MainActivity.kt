@@ -9,39 +9,40 @@ import com.iabrmv.mindmaps.ui.mindmap.Mindmap
 import com.iabrmv.mindmaps.ui.routing.Destination
 import com.iabrmv.mindmaps.ui.saves.SavesScreen
 import com.iabrmv.mindmaps.ui.theme.MindMapsTheme
-import com.iabrmv.mindmaps.viewModel.MindmapsViewModel
+import com.iabrmv.mindmaps.viewModel.MindGardenViewModel
 
 @ExperimentalComposeUiApi
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val viewModel: MindmapsViewModel by viewModels()
+        val viewModel: MindGardenViewModel by viewModels()
         setContent {
             MindMapsTheme {
                 with(viewModel) {
                     when(currentDestination) {
-                        Destination.Mindmap -> Mindmap(
-                            texts = texts,
-                            offsets = offsets,
-                            edges = edges,
-                            lastTouchedNodeIndex = lastTouchedNodeIndex,
-                            hasFocus = isNodeTextFocused,
-                            onSetFocus = ::setFocus,
-                            onClearFocus = ::clearFocus,
-                            onTouchNode = ::selectNode,
-                            onDrag = ::move,
-                            onReleaseDrag = ::confirmMove,
-                            onAddNode = ::addNode,
-                            onRemoveNode = ::removeNode,
-                            onRemoveEdge = ::removeEdge,
-                            onTextChange = ::updateText,
-                            onDoneEdit = ::stopEditingText,
-                            onExit = ::exitMindmapScreen
-                        )
+                        Destination.Mindmap -> mindmap?.run {
+                            Mindmap(
+                                nodes = nodes,
+                                edges = edges,
+                                lastTouchedNodeIndex = lastTouchedNodeIndex,
+                                hasFocus = isNodeTextFocused,
+                                onSetFocus = ::onSetFocus,
+                                onClearFocus = ::onDismiss,
+                                onTouchNode = ::onTouchNode,
+                                onDrag = ::onDrag,
+                                onReleaseDrag = ::onMoveDone,
+                                onAddNode = ::onAddNode,
+                                onRemoveNode = ::onRemoveNode,
+                                onRemoveEdge = { },
+                                onTextChange = ::onEditText,
+                                onDoneEdit = ::onDoneEditText,
+                                onExit = ::onBackPressed
+                            )
+                        }
                         Destination.Saves -> SavesScreen(
-                            names = mindmaps,
+                            names = mindmaps.map {it.name},
                             onMindmapClick = ::onSelectMindmap,
-                            onAddMindmap = ::addMindmap
+                            onAddMindmap = ::onAddMindmap
                         )
                     }
                 }

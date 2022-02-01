@@ -14,11 +14,11 @@ import androidx.compose.ui.input.pointer.consumeAllChanges
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.round
 import com.iabrmv.mindmaps.business.model.Edge
+import com.iabrmv.mindmaps.business.model.Node
 
 @Composable
 fun Mindmap(
-    texts: List<String>,
-    offsets: List<Offset>,
+    nodes: List<Node>,
     edges: List<Edge>,
     lastTouchedNodeIndex: Int?,
     hasFocus: Boolean,
@@ -26,8 +26,8 @@ fun Mindmap(
     onClearFocus: () -> Unit,
     onDrag: (Int, Offset) -> Unit,
     onTouchNode: (Int) -> Unit,
-    onReleaseDrag: (Int) -> Unit,
-    onAddNode: (Int) -> Unit = { },
+    onReleaseDrag: () -> Unit,
+    onAddNode: () -> Unit = { },
     onRemoveNode: () -> Unit = { },
     onAddEdge: (Int, Int) -> Unit = { _, _ -> },
     onRemoveEdge: (Int) -> Unit = { },
@@ -50,17 +50,17 @@ fun Mindmap(
             Edge(
                 color = arrowColor,
                 modifier = Modifier,
-                start = offsets[it.startIndex],
-                end = offsets[it.endIndex]
+                start = nodes[it.startIndex].offset,
+                end = nodes[it.endIndex].offset
             )
         }
-        texts.forEachIndexed { i, node ->
+        nodes.forEachIndexed { i, node ->
             NodeAlternative(
-                text = texts[i],
+                text = node.text,
                 isFocused = lastTouchedNodeIndex == i && hasFocus,
                 onReceiveFocus = { onSetFocus() },
                 modifier = Modifier
-                    .offset { offsets[i].round() }
+                    .offset { node.offset.round() }
                     .align(CenterElementAlignment)
                     .pointerInput(Unit) {
                         detectDragGestures(
@@ -69,13 +69,11 @@ fun Mindmap(
                                 change.consumeAllChanges()
                                 onDrag(i, dragAmount)
                             },
-                            onDragEnd = {
-                                onReleaseDrag(i)
-                            }
+                            onDragEnd = onReleaseDrag
                         )
                     },
                 onTouch = { onTouchNode(i) },
-                onAdd = { onAddNode(i) },
+                onAdd = onAddNode,
                 onDelete = onRemoveNode,
                 onTextChange = onTextChange,
                 onDoneEdit = onDoneEdit
