@@ -1,4 +1,4 @@
-package com.iabrmv.mindmaps.ui
+package com.iabrmv.mindmaps.ui.mindmap
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
