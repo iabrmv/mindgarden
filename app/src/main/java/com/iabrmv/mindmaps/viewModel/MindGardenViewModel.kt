@@ -17,7 +17,7 @@ class MindGardenViewModel: ViewModel() {
     var mindmap: Mindmap? by mutableStateOf(null, referentialEqualityPolicy())
 
     fun updateMindmapList() {
-        manager.clear()
+        mindmaps.clear()
         mindmaps.addAll(manager.loadMindmapsFromDB())
     }
 
