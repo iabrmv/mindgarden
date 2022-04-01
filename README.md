@@ -1,1 +1,3 @@
 # mindmaps
+
+Fast Mindmap Editor
