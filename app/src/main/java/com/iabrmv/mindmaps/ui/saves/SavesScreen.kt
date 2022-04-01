@@ -10,7 +10,11 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import com.iabrmv.mindmaps.ui.mindmap.Header
 
 @Composable
 fun SavesScreen(
@@ -20,7 +24,10 @@ fun SavesScreen(
     onAddMindmap: (String, Offset) -> Unit,
 ) {
     var showDialog by remember { mutableStateOf(false) }
-    Box {
+    BoxWithConstraints {
+        val centerOffset = with(LocalDensity.current) {
+            Offset(maxWidth.toPx() / 2, maxHeight.toPx() / 2)
+        }
         LazyColumn(Modifier.fillMaxSize()) {
             item {
                 Header("Mind Garden", modifier = Modifier
@@ -47,44 +54,52 @@ fun SavesScreen(
             onClick = {
                 showDialog = true
             },
-            modifier = Modifier.align(Alignment.BottomEnd).padding(32.dp)
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(32.dp)
         ) {
             Icon(imageVector = Icons.Filled.Add, contentDescription = null)
         }
-    }
 
-    if (showDialog) {
-        var name by remember { mutableStateOf("") }
-        AlertDialog(
-            onDismissRequest = { showDialog = false },
-            title = {
-                Text("Add new mindmap")
-            },
-            text = {
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = {
-                        name = it
-                    }
-                )
-            },
-            buttons = {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    TextButton(onClick = {
-                        onAddMindmap(name)
-                    }) {
-                        Text("OK")
-                    }
-                    TextButton(onClick = {
-                        showDialog = false
-                    }) {
-                        Text("CANCEL")
+        if (showDialog) {
+            var name by remember { mutableStateOf("") }
+            AlertDialog(
+                onDismissRequest = { showDialog = false },
+                title = {
+                    Text(
+                        text = "Add new mindmap",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            .padding(4.dp)
+                    )
+                },
+                text = {
+                    OutlinedTextField(
+                        value = name,
+                        onValueChange = {
+                            name = it
+                        }
+                    )
+                },
+                buttons = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        TextButton(onClick = {
+                            onAddMindmap(name, centerOffset)
+                        }) {
+                            Text("OK")
+                        }
+                        TextButton(onClick = {
+                            showDialog = false
+                        }) {
+                            Text("CANCEL")
+                        }
                     }
                 }
-            }
-        )
+            )
+        }
     }
 }

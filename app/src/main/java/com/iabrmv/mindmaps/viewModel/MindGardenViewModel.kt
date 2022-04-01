@@ -3,14 +3,13 @@ package com.iabrmv.mindmaps.viewModel
 import androidx.compose.runtime.*
 import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
-import com.iabrmv.mindmaps.business.MindmapManager
-import com.iabrmv.mindmaps.business.model.Mindmap
-import com.iabrmv.mindmaps.business.model.Node
+import com.iabrmv.mindmaps.repository.MindmapRepository
+import com.iabrmv.mindmaps.data.business.Mindmap
 import com.iabrmv.mindmaps.ui.routing.Destination
 import io.realm.Realm
 
 class MindGardenViewModel: ViewModel() {
-    private val manager = MindmapManager(Realm.getDefaultInstance())
+    private val manager = MindmapRepository(Realm.getDefaultInstance())
     var currentDestination by mutableStateOf(Destination.Saves)
 
     // Saves Screen
@@ -27,11 +26,11 @@ class MindGardenViewModel: ViewModel() {
     var isNodeTextFocused: Boolean by mutableStateOf(false)
 
     init {
-        mindmaps.addAll(manager.loadMindmaps())
+        mindmaps.addAll(manager.loadMindmapsFromDB())
     }
 
-    fun onAddMindmap(name: String) {
-        mindmaps.add(Mindmap(name))
+    fun onAddMindmap(name: String, rootOffset: Offset) {
+        mindmaps.add(Mindmap(name = name, rootOffset = rootOffset))
         mindmap = mindmaps[mindmaps.lastIndex]
         saveMindmap()
         currentDestination = Destination.Mindmap
@@ -50,8 +49,8 @@ class MindGardenViewModel: ViewModel() {
     fun onRemoveNode() {
         runOnTouchedNode { index ->
             updateMindmap { it.removeNode(index) }
-            saveMindmap()
         }
+        saveMindmap()
         clearLastTouchedIndex()
     }
 
@@ -59,7 +58,9 @@ class MindGardenViewModel: ViewModel() {
         lastTouchedNodeIndex = index
     }
 
-    fun onDrag(index: Int, delta: Offset) = updateMindmap { it.moveNode(index, delta) }
+    fun onDrag(index: Int, delta: Offset) = updateMindmap {
+        it.moveNode(index, delta)
+    }
 
     fun onMoveDone() = saveMindmap()
 
@@ -99,8 +100,9 @@ class MindGardenViewModel: ViewModel() {
     private fun runOnFocusedNode(block: (Int) -> Unit) =
         runOnTouchedNode { if(isNodeTextFocused) block(it) }
 
-
-    private fun saveMindmap() = mindmap?.let { manager.saveMindmap(it) }
+    private fun saveMindmap() = mindmap?.let {
+        manager.saveMindmapToDB(it)
+    }
 
     private fun clearLastTouchedIndex() {
         lastTouchedNodeIndex = null

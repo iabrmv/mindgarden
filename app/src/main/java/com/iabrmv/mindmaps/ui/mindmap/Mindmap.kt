@@ -3,9 +3,7 @@ package com.iabrmv.mindmaps.ui.mindmap
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -13,8 +11,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.consumeAllChanges
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.round
-import com.iabrmv.mindmaps.business.model.Edge
-import com.iabrmv.mindmaps.business.model.Node
+import com.iabrmv.mindmaps.data.business.Edge
+import com.iabrmv.mindmaps.data.business.Node
 
 @Composable
 fun Mindmap(
@@ -60,7 +58,7 @@ fun Mindmap(
                 )
             }
             nodes.forEachIndexed { i, node ->
-                NodeAlternative(
+                Node(
                     text = node.text,
                     rank = node.rank,
                     isFocused = lastTouchedNodeIndex == i && hasFocus,

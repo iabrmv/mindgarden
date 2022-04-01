@@ -9,6 +9,7 @@ import com.iabrmv.mindmaps.ui.mindmap.Mindmap
 import com.iabrmv.mindmaps.ui.routing.Destination
 import com.iabrmv.mindmaps.ui.saves.SavesScreen
 import com.iabrmv.mindmaps.ui.theme.MindMapsTheme
+import com.iabrmv.mindmaps.util.TimeUtils.toDateString
 import com.iabrmv.mindmaps.viewModel.MindGardenViewModel
 
 @ExperimentalComposeUiApi
@@ -22,6 +23,7 @@ class MainActivity : ComponentActivity() {
                     when(currentDestination) {
                         Destination.Mindmap -> mindmap?.run {
                             Mindmap(
+                                name = name,
                                 nodes = nodes,
                                 edges = edges,
                                 lastTouchedNodeIndex = lastTouchedNodeIndex,
@@ -40,7 +42,10 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         Destination.Saves -> SavesScreen(
-                            names = mindmaps.map {it.name},
+                            names = mindmaps.map { it.name },
+                            dates = mindmaps.map {
+                               "Edited ${it.lastEditedTimeMillis.toDateString()}"
+                            },
                             onMindmapClick = ::onSelectMindmap,
                             onAddMindmap = ::onAddMindmap
                         )

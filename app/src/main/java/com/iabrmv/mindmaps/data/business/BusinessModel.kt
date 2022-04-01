@@ -1,4 +1,4 @@
-package com.iabrmv.mindmaps.business.model
+package com.iabrmv.mindmaps.data.business
 
 interface BusinessModel<M> {
     fun toEntity() : M

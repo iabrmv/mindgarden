@@ -1,9 +1,9 @@
-package com.iabrmv.mindmaps.business.model
+package com.iabrmv.mindmaps.data.business
 
 import androidx.compose.ui.geometry.Offset
-import com.iabrmv.mindmaps.database.EdgeEntity
-import com.iabrmv.mindmaps.database.MindmapEntity
-import com.iabrmv.mindmaps.database.NodeEntity
+import com.iabrmv.mindmaps.data.database.EdgeEntity
+import com.iabrmv.mindmaps.data.database.MindmapEntity
+import com.iabrmv.mindmaps.data.database.NodeEntity
 import io.realm.RealmList
 import java.util.*
 
@@ -28,10 +28,18 @@ data class Mindmap(
         lastEditedTimeMillis = lastEditedTimeMillis
     )
 
-    constructor(name: String) : this(name = name, nodes = mutableListOf(Node(text = "My Goal")))
+    constructor(name: String, rootOffset: Offset) : this(
+        name = name,
+        nodes = mutableListOf(
+            Node(text = name, offset = rootOffset)
+        )
+    )
 
     fun addNode(parentIndex: Int) {
-        val node = Node(offset = nodes[parentIndex].offset + Offset(100f, 100f))
+        val node = Node(
+            offset = nodes[parentIndex].offset + Offset(100f, 100f),
+            rank = nodes[parentIndex].rank + 1
+        )
         nodes.add(node)
         edges.add(Edge(startIndex = parentIndex, endIndex = nodes.lastIndex))
     }
