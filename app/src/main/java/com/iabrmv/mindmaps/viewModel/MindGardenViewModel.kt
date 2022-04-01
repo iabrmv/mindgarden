@@ -17,6 +17,11 @@ class MindGardenViewModel: ViewModel() {
     var mindmaps = mutableStateListOf<Mindmap>()
     var mindmap: Mindmap? by mutableStateOf(null, referentialEqualityPolicy())
 
+    fun updateMindmapList() {
+        manager.clear()
+        mindmaps.addAll(manager.loadMindmapsFromDB())
+    }
+
     // Mindmap screen
     var lastTouchedNodeIndex: Int? by mutableStateOf(null)
     var isNodeTextFocused: Boolean by mutableStateOf(false)
@@ -77,6 +82,7 @@ class MindGardenViewModel: ViewModel() {
 
     fun onBackPressed() {
         saveMindmap()
+        updateMindmapList()
         currentDestination = Destination.Saves
     }
 
