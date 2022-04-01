@@ -83,6 +83,7 @@ class MindGardenViewModel: ViewModel() {
     private fun updateMindmap(change: (Mindmap) -> Unit) {
         mindmap = mindmap?.copy()?.also {
             change(it)
+            it.updateEditTime()
         }
     }
 

@@ -11,7 +11,9 @@ data class Mindmap(
     var id: String = UUID.randomUUID().toString(),
     var name: String = "Unknown",
     var nodes: MutableList<Node> = mutableListOf(),
-    var edges: MutableList<Edge> = mutableListOf()
+    var edges: MutableList<Edge> = mutableListOf(),
+    var createdTimeMillis: Long = Calendar.getInstance().timeInMillis,
+    var lastEditedTimeMillis: Long = Calendar.getInstance().timeInMillis
 ): BusinessModel<MindmapEntity> {
     override fun toEntity(): MindmapEntity = MindmapEntity(
         id = id,
@@ -21,7 +23,9 @@ data class Mindmap(
         },
         edges = RealmList<EdgeEntity>().apply {
             edges.forEach { add(it.toEntity()) }
-        }
+        },
+        createdTimeMillis = createdTimeMillis,
+        lastEditedTimeMillis = lastEditedTimeMillis
     )
 
     constructor(name: String) : this(name = name, nodes = mutableListOf(Node(text = "My Goal")))
@@ -45,6 +49,10 @@ data class Mindmap(
 
     fun moveNode(index: Int, delta: Offset) {
         nodes[index].offset += delta
+    }
+
+    fun updateEditTime() {
+        lastEditedTimeMillis = Calendar.getInstance().timeInMillis
     }
 
 }

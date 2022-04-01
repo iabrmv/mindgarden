@@ -16,14 +16,15 @@ import androidx.compose.ui.unit.dp
 fun SavesScreen(
     names: List<String>,
     onMindmapClick: (Int) -> Unit,
-    onAddMindmap: (String) -> Unit,
+    onAddMindmap: (String, Offset) -> Unit,
 ) {
     var showDialog by remember { mutableStateOf(false) }
     Box {
         LazyColumn(Modifier.fillMaxSize()) {
             itemsIndexed(names) { index, name ->
                 SaveItem(
-                    text = name,
+                    name = name,
+                    date = dates[index],
                     modifier = Modifier
                         .fillMaxWidth()
                         .wrapContentHeight()
