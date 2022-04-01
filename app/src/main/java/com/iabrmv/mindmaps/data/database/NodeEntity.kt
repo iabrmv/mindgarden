@@ -1,8 +1,7 @@
-package com.iabrmv.mindmaps.database
+package com.iabrmv.mindmaps.data.database
 
 import androidx.compose.ui.geometry.Offset
-import com.iabrmv.mindmaps.business.model.Edge
-import com.iabrmv.mindmaps.business.model.Node
+import com.iabrmv.mindmaps.data.business.Node
 import io.realm.RealmObject
 import io.realm.annotations.PrimaryKey
 import java.util.*
@@ -13,15 +12,15 @@ open class NodeEntity(
     var text: String = "New node",
     var xOffset: Float = 100f,
     var yOffset: Float = 100f,
-    var style: NodeStyleEntity? = null
+    var rank: Int = 0
 ): RealmObject(), Entity<Node> {
 
     constructor(
         id: String,
         text: String,
         offset: Offset,
-        style: NodeStyleEntity?
-    ) : this(id = id, text = text, xOffset = offset.x, yOffset = offset.y, style = style)
+        rank: Int
+    ) : this(id = id, text = text, xOffset = offset.x, yOffset = offset.y, rank = rank)
 
     var offset
         get() = Offset(xOffset, yOffset)
@@ -34,6 +33,6 @@ open class NodeEntity(
         id = id,
         text = text,
         offset = offset,
-        style = style?.toBusinessModel()
+        rank = rank
     )
 }
