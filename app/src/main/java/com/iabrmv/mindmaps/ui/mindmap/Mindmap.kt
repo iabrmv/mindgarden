@@ -18,6 +18,7 @@ import com.iabrmv.mindmaps.business.model.Node
 
 @Composable
 fun Mindmap(
+    name: String,
     nodes: List<Node>,
     edges: List<Edge>,
     lastTouchedNodeIndex: Int?,
@@ -40,44 +41,50 @@ fun Mindmap(
     BackHandler {
         onExit()
     }
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .clickable { onClearFocus() }
-    ) {
-        edges.forEach {
-            Edge(
-                color = arrowColor,
-                modifier = Modifier,
-                start = nodes[it.startIndex].offset,
-                end = nodes[it.endIndex].offset
-            )
-        }
-        nodes.forEachIndexed { i, node ->
-            NodeAlternative(
-                text = node.text,
-                isFocused = lastTouchedNodeIndex == i && hasFocus,
-                onReceiveFocus = { onSetFocus() },
-                modifier = Modifier
-                    .offset { node.offset.round() }
-                    .align(CenterElementAlignment)
-                    .pointerInput(Unit) {
-                        detectDragGestures(
-                            onDragStart = { onTouchNode(i) },
-                            onDrag = { change, dragAmount ->
-                                change.consumeAllChanges()
-                                onDrag(i, dragAmount)
-                            },
-                            onDragEnd = onReleaseDrag
-                        )
-                    },
-                onTouch = { onTouchNode(i) },
-                onAdd = onAddNode,
-                onDelete = onRemoveNode,
-                onTextChange = onTextChange,
-                onDoneEdit = onDoneEdit
-            )
+    Column {
+        Header(text = name, modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clickable { onClearFocus() }
+        ) {
+            edges.forEach {
+                Edge(
+                    color = arrowColor,
+                    modifier = Modifier,
+                    start = nodes[it.startIndex].offset,
+                    end = nodes[it.endIndex].offset
+                )
+            }
+            nodes.forEachIndexed { i, node ->
+                NodeAlternative(
+                    text = node.text,
+                    rank = node.rank,
+                    isFocused = lastTouchedNodeIndex == i && hasFocus,
+                    onReceiveFocus = { onSetFocus() },
+                    modifier = Modifier
+                        .offset { node.offset.round() }
+                        .align(CenterElementAlignment)
+                        .pointerInput(Unit) {
+                            detectDragGestures(
+                                onDragStart = { onTouchNode(i) },
+                                onDrag = { change, dragAmount ->
+                                    change.consumeAllChanges()
+                                    onDrag(i, dragAmount)
+                                },
+                                onDragEnd = onReleaseDrag
+                            )
+                        },
+                    onTouch = { onTouchNode(i) },
+                    onAdd = onAddNode,
+                    onDelete = onRemoveNode,
+                    onTextChange = onTextChange,
+                    onDoneEdit = onDoneEdit
+                )
+            }
         }
     }
 }

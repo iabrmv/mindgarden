@@ -15,12 +15,19 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun SavesScreen(
     names: List<String>,
+    dates: List<String>,
     onMindmapClick: (Int) -> Unit,
     onAddMindmap: (String, Offset) -> Unit,
 ) {
     var showDialog by remember { mutableStateOf(false) }
     Box {
         LazyColumn(Modifier.fillMaxSize()) {
+            item {
+                Header("Mind Garden", modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                )
+            }
             itemsIndexed(names) { index, name ->
                 SaveItem(
                     name = name,
