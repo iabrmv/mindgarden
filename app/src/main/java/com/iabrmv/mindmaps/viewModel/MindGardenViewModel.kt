@@ -111,4 +111,9 @@ class MindGardenViewModel: ViewModel() {
     private fun clearFocus() {
         isNodeTextFocused = false
     }
+
+    fun getAppropriateScale(width: Float, height: Float): Float {
+        val size = mindmap?.size ?: Offset(width, height)
+        return minOf(width / size.x / 1.4f, height / size.y / 1.4f)
+    }
 }

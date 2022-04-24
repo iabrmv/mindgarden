@@ -6,6 +6,8 @@ import com.iabrmv.mindmaps.data.database.MindmapEntity
 import com.iabrmv.mindmaps.data.database.NodeEntity
 import io.realm.RealmList
 import java.util.*
+import java.util.Collections.max
+import java.util.Collections.min
 
 data class Mindmap(
     var id: String = UUID.randomUUID().toString(),
@@ -35,6 +37,27 @@ data class Mindmap(
         )
     )
 
+    private val topStartOffset: Offset
+        get() = Offset(
+            min(nodes.map { it.offset.x }),
+            min(nodes.map { it.offset.y })
+        )
+
+    private val bottomEndOffset: Offset
+        get() = Offset(
+            max(nodes.map { it.offset.x }),
+            max(nodes.map { it.offset.y })
+        )
+
+    val size: Offset
+        get() = bottomEndOffset - topStartOffset
+
+    val gravityCenter: Offset
+        get() = Offset(
+            nodes.map { it.offset.x }.average().toFloat(),
+            nodes.map { it.offset.y }.average().toFloat()
+        )
+
     fun addNode(parentIndex: Int) {
         val node = Node(
             offset = nodes[parentIndex].offset + Offset(100f, 100f),
@@ -62,5 +85,4 @@ data class Mindmap(
     fun updateEditTime() {
         lastEditedTimeMillis = Calendar.getInstance().timeInMillis
     }
-
 }

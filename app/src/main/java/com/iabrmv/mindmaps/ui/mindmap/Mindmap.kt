@@ -1,15 +1,20 @@
 package com.iabrmv.mindmaps.ui.mindmap
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.consumeAllChanges
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import com.iabrmv.mindmaps.data.business.Edge
 import com.iabrmv.mindmaps.data.business.Node
@@ -19,6 +24,8 @@ fun Mindmap(
     name: String,
     nodes: List<Node>,
     edges: List<Edge>,
+    gravityCenter: Offset,
+    getAppropriateScale: (width: Float, height: Float) -> Float,
     lastTouchedNodeIndex: Int?,
     hasFocus: Boolean,
     onSetFocus: () -> Unit,
@@ -34,7 +41,6 @@ fun Mindmap(
     onDoneEdit: () -> Unit = { },
     onExit: () -> Unit = { }
 ) {
-    val arrowColor = MaterialTheme.colors.primary
 
     BackHandler {
         onExit()
@@ -44,44 +50,72 @@ fun Mindmap(
             .fillMaxWidth()
             .wrapContentHeight()
         )
-        Box(
+        BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize()
-                .clickable { onClearFocus() }
+                .clipToBounds()
         ) {
-            edges.forEach {
-                Edge(
-                    color = arrowColor,
-                    modifier = Modifier,
-                    start = nodes[it.startIndex].offset,
-                    end = nodes[it.endIndex].offset
-                )
+            val appropriateScale = with(LocalDensity.current) {
+                getAppropriateScale(maxWidth.toPx(), maxHeight.toPx())
             }
-            nodes.forEachIndexed { i, node ->
-                Node(
-                    text = node.text,
-                    rank = node.rank,
-                    isFocused = lastTouchedNodeIndex == i && hasFocus,
-                    onReceiveFocus = { onSetFocus() },
-                    modifier = Modifier
-                        .offset { node.offset.round() }
-                        .align(CenterElementAlignment)
-                        .pointerInput(Unit) {
-                            detectDragGestures(
-                                onDragStart = { onTouchNode(i) },
-                                onDrag = { change, dragAmount ->
-                                    change.consumeAllChanges()
-                                    onDrag(i, dragAmount)
-                                },
-                                onDragEnd = onReleaseDrag
-                            )
-                        },
-                    onTouch = { onTouchNode(i) },
-                    onAdd = onAddNode,
-                    onDelete = onRemoveNode,
-                    onTextChange = onTextChange,
-                    onDoneEdit = onDoneEdit
-                )
+            val initialOffset = with(LocalDensity.current) {
+                Offset(maxWidth.toPx() / 2, maxHeight.toPx() / 2) - gravityCenter
+            }
+            var scale by remember { mutableStateOf(appropriateScale) }
+            var offset by remember { mutableStateOf(initialOffset * appropriateScale) }
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .pointerInput(Unit) {
+                        detectTransformGestures { centroid, pan, zoom, rot ->
+                            onClearFocus()
+                            offset += pan
+                            scale *= zoom
+                        }
+                    }
+                    .graphicsLayer(
+                        scaleX = scale,
+                        scaleY = scale,
+                        translationX = offset.x,
+                        translationY = offset.y
+                    )
+            ) {
+                edges.forEach {
+                    Box(Modifier.border(2.dp, Color.Black)) {
+                        Edge(
+                            color = MaterialTheme.colors.primary,
+                            modifier = Modifier,
+                            start = nodes[it.startIndex].offset,
+                            end = nodes[it.endIndex].offset
+                        )
+                    }
+                }
+                nodes.forEachIndexed { i, node ->
+                    Node(
+                        text = node.text,
+                        rank = node.rank,
+                        isFocused = lastTouchedNodeIndex == i && hasFocus,
+                        onReceiveFocus = { onSetFocus() },
+                        modifier = Modifier
+                            .offset { (node.offset).round() }
+                            .align(CenterElementAlignment)
+                            .pointerInput(Unit) {
+                                detectDragGestures(
+                                    onDragStart = { onTouchNode(i) },
+                                    onDrag = { change, dragAmount ->
+                                        change.consumeAllChanges()
+                                        onDrag(i, dragAmount)
+                                    },
+                                    onDragEnd = onReleaseDrag
+                                )
+                            },
+                        onTouch = { onTouchNode(i) },
+                        onAdd = onAddNode,
+                        onDelete = onRemoveNode,
+                        onTextChange = onTextChange,
+                        onDoneEdit = onDoneEdit
+                    )
+                }
             }
         }
     }

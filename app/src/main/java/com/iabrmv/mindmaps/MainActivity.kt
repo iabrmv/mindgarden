@@ -26,6 +26,8 @@ class MainActivity : ComponentActivity() {
                                 name = name,
                                 nodes = nodes,
                                 edges = edges,
+                                gravityCenter = gravityCenter,
+                                getAppropriateScale = ::getAppropriateScale,
                                 lastTouchedNodeIndex = lastTouchedNodeIndex,
                                 hasFocus = isNodeTextFocused,
                                 onSetFocus = ::onSetFocus,

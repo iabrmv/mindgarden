@@ -90,10 +90,15 @@ fun Node(
                 .requiredWidth(IntrinsicSize.Min)
                 .focusRequester(focusRequester)
                 .pointerInput(Unit) {
-                    detectTapGestures(onLongPress = {
-                        onTouch()
-                        showMenu = true
-                    })
+                    detectTapGestures(
+                        onLongPress = {
+                            onTouch()
+                            showMenu = true
+                        },
+                        onDoubleTap = {
+                            onAdd()
+                        }
+                    )
                 }
                 .background(color = Color.White, shape = CircleShape)
                 .border(
@@ -111,8 +116,7 @@ fun Node(
             val buttons = mapOf(
                 "Rename" to { onReceiveFocus() },
                 "Delete" to { onDelete() },
-                "New node" to { onAdd() },
-                "Style" to { onStyleChangeIntent() }
+                "New node" to { onAdd() }
             )
 
             buttons.forEach {
