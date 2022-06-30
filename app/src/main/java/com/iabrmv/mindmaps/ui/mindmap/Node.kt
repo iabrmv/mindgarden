@@ -39,11 +39,9 @@ fun Node(
     isFocused: Boolean,
     onReceiveFocus: () -> Unit,
     modifier: Modifier = Modifier,
-    onTouch: () -> Unit,
     onAdd: () -> Unit = { },
     onTextChange: (String) -> Unit = { },
     onDelete: () -> Unit = { },
-    onStyleChangeIntent: () -> Unit = { },
     onDoneEdit: () -> Unit
 ) {
     var showMenu by remember { mutableStateOf(false) }
@@ -89,17 +87,6 @@ fun Node(
                 .padding(horizontal = 8.dp)
                 .requiredWidth(IntrinsicSize.Min)
                 .focusRequester(focusRequester)
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onLongPress = {
-                            onTouch()
-                            showMenu = true
-                        },
-                        onDoubleTap = {
-                            onAdd()
-                        }
-                    )
-                }
                 .background(color = Color.White, shape = CircleShape)
                 .border(
                     width = 2.dp,

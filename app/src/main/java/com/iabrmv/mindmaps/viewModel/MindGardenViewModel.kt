@@ -1,5 +1,6 @@
 package com.iabrmv.mindmaps.viewModel
 
+import android.util.Log
 import androidx.compose.runtime.*
 import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
@@ -42,7 +43,10 @@ class MindGardenViewModel: ViewModel() {
     }
 
     fun onAddNode() = runOnTouchedNode { index ->
-        updateMindmap { it.addNode(index) }
+        updateMindmap {
+            it.addNode(index)
+        }
+        mindmap?.nodes?.lastIndex?.let { onTouchNode(it) }
         saveMindmap()
     }
 
@@ -55,6 +59,7 @@ class MindGardenViewModel: ViewModel() {
     }
 
     fun onTouchNode(index: Int) {
+        Log.d(TAG, "Touched node: $index")
         lastTouchedNodeIndex = index
     }
 
@@ -114,6 +119,10 @@ class MindGardenViewModel: ViewModel() {
 
     fun getAppropriateScale(width: Float, height: Float): Float {
         val size = mindmap?.size ?: Offset(width, height)
-        return minOf(width / size.x / 1.4f, height / size.y / 1.4f)
+        return minOf(width / size.x, height / size.y) / 1.4f
+    }
+
+    companion object {
+        const val TAG = "MindGarden"
     }
 }
