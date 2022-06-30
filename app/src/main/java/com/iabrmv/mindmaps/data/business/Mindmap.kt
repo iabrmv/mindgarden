@@ -53,10 +53,7 @@ data class Mindmap(
         get() = bottomEndOffset - topStartOffset
 
     val gravityCenter: Offset
-        get() = Offset(
-            nodes.map { it.offset.x }.average().toFloat(),
-            nodes.map { it.offset.y }.average().toFloat()
-        )
+        get() = (topStartOffset + bottomEndOffset) * .5f
 
     fun addNode(parentIndex: Int) {
         val node = Node(
@@ -71,11 +68,22 @@ data class Mindmap(
         nodes[nodeIndex].text = newText
     }
 
-    fun removeNode(index: Int) {
-        nodes.removeAt(index)
-        edges.removeAll {
-            it.startIndex == index || it.endIndex == index
+    fun removeNode(index: Int): Boolean {
+        val parentIndex = edges.find {
+            it.endIndex == index
+        }?.startIndex
+
+        parentIndex?.let { it ->
+            nodes.removeAt(index)
+            edges.removeAll { it.endIndex == index }
+            edges.forEach { edge ->
+                if (edge.startIndex == index) edge.startIndex = it
+                if (edge.startIndex > index) edge.startIndex -= 1
+                if (edge.endIndex > index) edge.endIndex -= 1
+            }
+            return true
         }
+        return false
     }
 
     fun moveNode(index: Int, delta: Offset) {
